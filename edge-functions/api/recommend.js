@@ -107,11 +107,20 @@ function extractRecipes(content) {
 }
 
 export async function onRequestGet({ env }) {
+  let counterStorageReady = false;
+  try {
+    const store = getLimitStore();
+    await store.get('health_check');
+    counterStorageReady = true;
+  } catch (error) {
+    console.error('counter_storage_health_failed', error?.message || 'unknown');
+  }
   return json({
     ok: true,
     service: 'warm-kitchen-family-ai',
-    configured: Boolean(env?.DEEPSEEK_API_KEY && env?.FAMILY_ACCESS_CODE),
-    counterStorage: 'makers-blob'
+    configured: Boolean(env?.DEEPSEEK_API_KEY && env?.FAMILY_ACCESS_CODE && counterStorageReady),
+    counterStorage: 'makers-blob',
+    counterStorageReady
   });
 }
 
@@ -133,7 +142,8 @@ export async function onRequestPost({ request, env }) {
   let store;
   try {
     store = getLimitStore();
-  } catch (_) {
+  } catch (error) {
+    console.error('counter_storage_init_failed', error?.message || 'unknown');
     return json({ message: '每日次数保护暂时不可用，请稍后再试' }, 503);
   }
 
@@ -174,7 +184,8 @@ export async function onRequestPost({ request, env }) {
       readCount(store, familyKey),
       readCount(store, deviceKey)
     ]);
-  } catch (_) {
+  } catch (error) {
+    console.error('counter_storage_read_failed', error?.message || 'unknown');
     return json({ message: '今日次数记录暂时不可用，请稍后再试' }, 503);
   }
 
@@ -190,7 +201,8 @@ export async function onRequestPost({ request, env }) {
       store.put(familyKey, String(familyCount + 1)),
       store.put(deviceKey, String(deviceCount + 1))
     ]);
-  } catch (_) {
+  } catch (error) {
+    console.error('counter_storage_write_failed', error?.message || 'unknown');
     return json({ message: '今日次数记录暂时不可用，请稍后再试' }, 503);
   }
 
@@ -218,14 +230,25 @@ export async function onRequestPost({ request, env }) {
       }),
       signal: controller.signal
     });
-  } catch (_) {
+  } catch (error) {
     clearTimeout(timeout);
-    return json({ message: 'DeepSeek 暂时没有响应，已为您保留本地菜谱' }, 503);
+    console.error('deepseek_fetch_failed', error?.name || 'unknown');
+    return json({ message: 'DeepSeek 连接超时，请稍后再试' }, 503);
   }
   clearTimeout(timeout);
 
   if (!deepSeekResponse.ok) {
-    return json({ message: 'DeepSeek 服务暂时不可用，已为您保留本地菜谱' }, 503);
+    console.error('deepseek_http_error', deepSeekResponse.status);
+    const messages = {
+      400: 'DeepSeek 请求格式不兼容，请联系网站维护者',
+      401: 'DeepSeek API 密钥无效，请在 EdgeOne 更新密钥',
+      402: 'DeepSeek API 余额不足，请先在开放平台充值',
+      422: 'DeepSeek 模型参数需要更新，请联系网站维护者',
+      429: 'DeepSeek 当前请求较多，请稍后再试',
+      500: 'DeepSeek 服务暂时故障，请稍后再试',
+      503: 'DeepSeek 当前繁忙，请稍后再试'
+    };
+    return json({ message: messages[deepSeekResponse.status] || `DeepSeek 服务返回错误（${deepSeekResponse.status}）` }, 503);
   }
 
   try {
