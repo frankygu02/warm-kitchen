@@ -1,0 +1,9 @@
+{
+  "name": "warm-kitchen-family",
+  "version": "1.0.0",
+  "private": true,
+  "description": "暖味厨房家庭版",
+  "dependencies": {
+    "@edgeone/pages-blob": "0.0.14"
+  }
+}
