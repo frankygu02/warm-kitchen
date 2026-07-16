@@ -285,13 +285,7 @@
     <section class="shell hero">
       <div>
         <span class="eyebrow">🌿 懂食材，也懂您的口味</span>
-        <h1>家里有什么，…9705 tokens truncated…','确认肉馅中心完全熟透，汤汁略浓即可。食用时用勺分成小块。'],
-        note:'豆腐无需油煎也能入味，可减少用油。肾功能不全者食用豆制品前请咨询医生。'
-      }
-    ];
-
-    let ingredients = JSON.parse(localStorage.getItem('warmKitchenIngredients') || '[]');
-    let saved = new Set(JSON.parse(localStorage.getItem('warmKitchenSaved') || '[]'));
+        <h1>家里有什么，…9788 tokens truncated…ved = new Set(JSON.parse(localStorage.getItem('warmKitchenSaved') || '[]'));
     let currentResults = [];
     let resultPool = [];
     let aiRecipes = [];
@@ -306,7 +300,10 @@
     const familyCode = document.getElementById('familyCode');
     const toast = document.getElementById('toast');
 
-    function normalize(value) { return String(value || '').trim().replace(/\s+/g, ''); }
+    function safeText(value, maxLength = 180) {
+      return String(value || '').replace(/[<>&"'`]/g, '').trim().slice(0, maxLength);
+    }
+    function normalize(value) { return safeText(value, 30).replace(/\s+/g, ''); }
     function showToast(message) {
       toast.textContent = message; toast.classList.add('show');
       clearTimeout(showToast.timer); showToast.timer = setTimeout(() => toast.classList.remove('show'), 2200);
@@ -388,13 +385,15 @@
       return data.slice(0, 10).map((item, index) => {
         const category = ['蒸菜','炖煮','快手菜','汤羹','主食'].includes(item.category) ? item.category : '快手菜';
         const recipe = {
-          id:'ai-' + stamp + '-' + index, name:String(item.name || 'AI 家常菜').slice(0,20), emoji:emojis[category], tone:tones[index % tones.length],
-          time:Math.max(10, Math.min(90, Number(item.time) || 30)), level:String(item.level || '简单').slice(0,8), method:String(item.method || '煮').slice(0,6), category,
+          id:'ai-' + stamp + '-' + index, name:safeText(item.name || 'AI 家常菜', 20), emoji:emojis[category], tone:tones[index % tones.length],
+          time:Math.max(10, Math.min(90, Number(item.time) || 30)), level:safeText(item.level || '简单', 8), method:safeText(item.method || '煮', 6), category,
           ingredients:Array.isArray(item.ingredients) ? item.ingredients.map(normalize).filter(Boolean).slice(0,8) : [...ingredients], aliases:{}, needs:[...needs],
-          tags:Array.isArray(item.tags) ? item.tags.map(String).slice(0,3) : ['AI 多样推荐','按现有食材搭配'],
-          amounts:item.amounts && typeof item.amounts === 'object' && !Array.isArray(item.amounts) ? item.amounts : {'主要食材':ingredients.join('、')},
-          steps:Array.isArray(item.steps) ? item.steps.map(String).filter(Boolean).slice(0,7) : [],
-          note:String(item.note || 'AI 菜谱仅供日常烹饪参考，请根据个人情况调整。').slice(0,180),
+          tags:Array.isArray(item.tags) ? item.tags.map(tag => safeText(tag, 20)).filter(Boolean).slice(0,3) : ['AI 多样推荐','按现有食材搭配'],
+          amounts:item.amounts && typeof item.amounts === 'object' && !Array.isArray(item.amounts)
+            ? Object.fromEntries(Object.entries(item.amounts).slice(0,12).map(([name, amount]) => [safeText(name, 20), safeText(amount, 30)]).filter(([name]) => name))
+            : {'主要食材':ingredients.join('、')},
+          steps:Array.isArray(item.steps) ? item.steps.map(step => safeText(step, 220)).filter(Boolean).slice(0,7) : [],
+          note:safeText(item.note || 'AI 菜谱仅供日常烹饪参考，请根据个人情况调整。', 180),
           baseServings:servings, source:'AI'
         };
         const matches = getMatches(recipe);
