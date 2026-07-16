@@ -1,3 +1,5 @@
+import { getStore } from '@edgeone/pages-blob';
+
 const DEEPSEEK_URL = 'https://api.deepseek.com/chat/completions';
 const ALLOWED_NEEDS = new Set(['soft', 'lowSalt', 'lowOil', 'protein']);
 const ALLOWED_TIMES = new Set(['all', '20', '30', '45']);
@@ -53,6 +55,18 @@ async function readCount(store, key) {
   return Number.isFinite(count) && count >= 0 ? count : 0;
 }
 
+function getLimitStore() {
+  const blob = getStore({ name: 'warm-kitchen-limits', consistency: 'strong' });
+  return {
+    get(key) {
+      return blob.get(`counters/${key}`, { consistency: 'strong' });
+    },
+    put(key, value) {
+      return blob.set(`counters/${key}`, value);
+    }
+  };
+}
+
 function makePrompt({ ingredients, needs, servings, timeLimit, recentNames }) {
   const needNames = {
     soft: '软烂易嚼',
@@ -93,11 +107,11 @@ function extractRecipes(content) {
 }
 
 export async function onRequestGet({ env }) {
-  const store = env?.warm_kitchen_kv || globalThis.warm_kitchen_kv;
   return json({
     ok: true,
     service: 'warm-kitchen-family-ai',
-    configured: Boolean(env?.DEEPSEEK_API_KEY && env?.FAMILY_ACCESS_CODE && store)
+    configured: Boolean(env?.DEEPSEEK_API_KEY && env?.FAMILY_ACCESS_CODE),
+    counterStorage: 'makers-blob'
   });
 }
 
@@ -112,9 +126,15 @@ export async function onRequestPost({ request, env }) {
 
   const apiKey = env?.DEEPSEEK_API_KEY;
   const familySecret = env?.FAMILY_ACCESS_CODE;
-  const store = env?.warm_kitchen_kv || globalThis.warm_kitchen_kv;
-  if (!apiKey || !familySecret || !store) {
+  if (!apiKey || !familySecret) {
     return json({ message: '家庭 AI 尚未完成云端设置' }, 503);
+  }
+
+  let store;
+  try {
+    store = getLimitStore();
+  } catch (_) {
+    return json({ message: '每日次数保护暂时不可用，请稍后再试' }, 503);
   }
 
   let body;
