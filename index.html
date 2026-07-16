@@ -619,6 +619,7 @@
     let activeCategory = '全部';
     let resultSource = 'local';
     let resultLimits = null;
+    let lastAIError = '';
     const pageSize = 6;
     const globalAliases = {'番茄':'西红柿','鸡腿':'鸡肉','鸡胸':'鸡肉','鸡胸肉':'鸡肉','肉末':'猪肉','瘦肉':'猪肉','鲜虾':'虾仁','大虾':'虾仁','蘑菇':'香菇','嫩豆腐':'豆腐','老豆腐':'豆腐','北豆腐':'豆腐','蛋':'鸡蛋','米':'大米','小白菜':'青菜','油菜':'青菜','娃娃菜':'白菜'};
     const chips = document.getElementById('ingredientChips');
@@ -775,12 +776,14 @@
         resultPool = diversify(aiRecipes);
         resultSource = 'AI';
         resultLimits = response.limits || null;
+        lastAIError = '';
         rememberAI(aiRecipes);
         showToast('家庭专属 AI 已生成一组新菜谱');
       } catch (error) {
         resultPool = localRecommendations(needs, limit);
         resultSource = 'local';
         resultLimits = null;
+        lastAIError = error.message || 'AI 暂时不可用';
         if (error.status === 401) {
           localStorage.removeItem('warmKitchenFamilyCode'); familyCode.value = ''; familyCode.focus();
           showToast('家庭访问码不正确，已使用本地菜谱');
@@ -816,7 +819,7 @@
       document.getElementById('shuffleBtn').hidden = filtered.length <= pageSize;
       document.getElementById('resultSummary').innerHTML = resultSource === 'AI'
         ? '✨ DeepSeek 根据“' + ingredients.slice(0,5).join('、') + (ingredients.length > 5 ? '等' : '') + '”刚刚生成；再次点击推荐会得到新组合。<span class="ai-source">家庭专属通道' + (resultLimits ? ' · 今日全家还可推荐约 ' + resultLimits.familyRemaining + ' 次' : '') + '</span>'
-        : '已使用本地菜谱库为“' + ingredients.slice(0,5).join('、') + (ingredients.length > 5 ? '等' : '') + '”搭配（AI 暂时不可用）。';
+        : '已使用本地菜谱库为“' + ingredients.slice(0,5).join('、') + (ingredients.length > 5 ? '等' : '') + '”搭配。' + (lastAIError ? '<span class="ai-source">AI 未启用：' + safeText(lastAIError, 100) + '</span>' : '');
       if (!currentResults.length) { grid.innerHTML = '<div class="empty"><div style="font-size:3rem">🍚</div><h3>这个分类暂时没有菜品</h3><p>可以选择“全部”，或再点击一次 AI 推荐生成新组合。</p></div>'; return; }
       grid.innerHTML = currentResults.map(recipe => {
         const exact = recipe.missing.length === 0;
