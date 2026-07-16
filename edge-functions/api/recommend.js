@@ -115,12 +115,47 @@ export async function onRequestGet({ env }) {
   } catch (error) {
     console.error('counter_storage_health_failed', error?.message || 'unknown');
   }
+
+  const apiKeyPresent = Boolean(env?.DEEPSEEK_API_KEY);
+  const familyAccessCodePresent = Boolean(env?.FAMILY_ACCESS_CODE);
+  const deepSeek = {
+    reachable: false,
+    authenticationValid: false,
+    balanceAvailable: null,
+    modelsStatus: null,
+    balanceStatus: null
+  };
+  if (apiKeyPresent) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10_000);
+    try {
+      const headers = { Accept: 'application/json', Authorization: `Bearer ${env.DEEPSEEK_API_KEY}` };
+      const [modelsResponse, balanceResponse] = await Promise.all([
+        fetch('https://api.deepseek.com/models', { headers, signal: controller.signal }),
+        fetch('https://api.deepseek.com/user/balance', { headers, signal: controller.signal })
+      ]);
+      deepSeek.reachable = true;
+      deepSeek.modelsStatus = modelsResponse.status;
+      deepSeek.balanceStatus = balanceResponse.status;
+      deepSeek.authenticationValid = modelsResponse.ok;
+      if (balanceResponse.ok) {
+        const balance = await balanceResponse.json();
+        deepSeek.balanceAvailable = Boolean(balance?.is_available);
+      }
+    } catch (error) {
+      console.error('deepseek_health_failed', error?.name || 'unknown');
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
   return json({
     ok: true,
     service: 'warm-kitchen-family-ai',
-    configured: Boolean(env?.DEEPSEEK_API_KEY && env?.FAMILY_ACCESS_CODE && counterStorageReady),
+    configured: Boolean(apiKeyPresent && familyAccessCodePresent && counterStorageReady),
+    environment: { apiKeyPresent, familyAccessCodePresent },
     counterStorage: 'makers-blob',
-    counterStorageReady
+    counterStorageReady,
+    deepSeek
   });
 }
 
