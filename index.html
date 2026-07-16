@@ -787,9 +787,9 @@
         } else if (error.status === 429) {
           showToast(error.message || '今日 AI 推荐次数已用完');
         } else if (error.status === 503) {
-          showToast('家庭 AI 尚未完成云端设置，已使用本地菜谱');
+          showToast(error.message || '家庭 AI 暂时不可用，已使用本地菜谱');
         } else {
-          showToast('AI 暂时不可用，已使用本地菜谱推荐');
+          showToast(error.message || 'AI 暂时不可用，已使用本地菜谱推荐');
         }
         console.warn('AI recommendation fallback:', error);
       } finally {
