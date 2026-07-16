@@ -78,7 +78,7 @@ function makePrompt({ ingredients, needs, servings, timeLimit, recentNames }) {
   const timeText = timeLimit === 'all' ? '不限' : `${timeLimit}分钟以内`;
   const avoidText = recentNames.length ? `尽量不要重复最近推荐过的菜：${recentNames.join('、')}。` : '';
 
-  return `请根据以下条件，为中国家庭设计8道彼此差异明显的家常菜：
+  return `请根据以下条件，为中国家庭设计6道彼此差异明显的家常菜：
 现有食材：${ingredients.join('、')}
 用餐人数：${servings}人
 制作时间：${timeText}
@@ -87,8 +87,8 @@ ${avoidText}
 
 要求：
 1. 优先使用现有食材，允许补充常见调料和少量容易购买的配菜；不要虚构食材。
-2. 8道菜尽量覆盖蒸菜、炖煮、快手菜、汤羹、主食等不同类别，不要都推荐最基础的炒菜。
-3. 步骤必须具体、按顺序、适合不熟悉手机操作的中老年用户阅读；标明火候、时间和成熟判断。
+2. 6道菜尽量覆盖蒸菜、炖煮、快手菜、汤羹、主食等不同类别，不要都推荐最基础的炒菜。
+3. 每道菜写4至5个步骤，每个步骤尽量不超过60个汉字；标明火候、时间和成熟判断。
 4. 少盐少油，兼顾软烂易嚼；涉及生肉、蛋类时提醒彻底加热。
 5. 每道菜的 amounts 按${servings}人份给出，使用“克、个、勺、毫升”等清楚单位。
 6. 只返回一个JSON对象，不要添加解释、标题或Markdown代码块。
@@ -100,7 +100,15 @@ category只能从“蒸菜、炖煮、快手菜、汤羹、主食”中选择。
 
 function extractRecipes(content) {
   const clean = String(content || '').replace(/```(?:json)?/gi, '').replace(/```/g, '').trim();
-  const parsed = JSON.parse(clean);
+  let parsed;
+  try {
+    parsed = JSON.parse(clean);
+  } catch (_) {
+    const start = clean.indexOf('{');
+    const end = clean.lastIndexOf('}');
+    if (start < 0 || end <= start) throw new Error('invalid_recipe_json');
+    parsed = JSON.parse(clean.slice(start, end + 1));
+  }
   const recipes = Array.isArray(parsed) ? parsed : parsed.recipes;
   if (!Array.isArray(recipes) || recipes.length < 3) throw new Error('invalid_recipe_payload');
   return recipes.slice(0, 10);
@@ -259,8 +267,8 @@ export async function onRequestPost({ request, env }) {
         ],
         response_format: { type: 'json_object' },
         thinking: { type: 'disabled' },
-        temperature: 0.9,
-        max_tokens: 5000,
+        temperature: 0.6,
+        max_tokens: 6000,
         stream: false
       }),
       signal: controller.signal
@@ -288,7 +296,12 @@ export async function onRequestPost({ request, env }) {
 
   try {
     const payload = await deepSeekResponse.json();
-    const recipes = extractRecipes(payload?.choices?.[0]?.message?.content);
+    const choice = payload?.choices?.[0];
+    if (choice?.finish_reason === 'length') {
+      console.error('deepseek_output_truncated');
+      return json({ message: 'DeepSeek 输出被截断，请再试一次' }, 503);
+    }
+    const recipes = extractRecipes(choice?.message?.content);
     return json({
       recipes,
       limits: {
@@ -296,7 +309,8 @@ export async function onRequestPost({ request, env }) {
         deviceRemaining: Math.max(0, deviceLimit - deviceCount - 1)
       }
     });
-  } catch (_) {
-    return json({ message: '这次生成的菜谱格式不完整，请再试一次' }, 503);
+  } catch (error) {
+    console.error('deepseek_recipe_parse_failed', error?.message || 'unknown');
+    return json({ message: 'DeepSeek 已生成内容，但菜谱格式不完整，请再试一次' }, 503);
   }
 }
