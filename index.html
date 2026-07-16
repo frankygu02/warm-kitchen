@@ -137,7 +137,8 @@
     .option label b { font-size: 1.15rem; }
     .select-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .select-row select { width: 100%; min-height: 50px; border: 1px solid var(--line); border-radius: 13px; background: white; padding: 0 11px; color: var(--ink); }
-    .submit-bar { padding: 22px 34px; background: var(--green-dark); display: flex; align-items: center; justify-content: space-between; gap: 18px; color: white; }
+    .submit-bar { padding: 22px 34px; background: var(--green-dark); display: flex; align-items: center; justify-content: space-between; gap: 22px; color: white; }
+    .submit-info { flex: 1; min-width: 0; }
     .submit-bar p { margin: 0; opacity: .9; }
     .submit-bar p strong { display: block; color: #ffd7ae; font-size: 1rem; margin-bottom: 4px; }
     .submit-bar p small { display: block; line-height: 1.55; }
@@ -145,6 +146,11 @@
     .recommend-btn:hover { background: #ffb475; transform: translateY(-1px); }
     .recommend-btn:disabled { cursor: wait; opacity: .72; transform: none; }
     .ai-source { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; color: var(--muted); font-size: .86rem; }
+    .family-access { display: flex; align-items: center; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+    .family-access label { font-weight: 800; color: #fff; white-space: nowrap; }
+    .family-code-input { min-height: 44px; width: min(240px, 100%); border: 2px solid rgba(255,255,255,.38); border-radius: 12px; padding: 0 14px; background: rgba(255,255,255,.96); color: #29251f; font: inherit; }
+    .family-code-input:focus { outline: 3px solid #f3a15f; outline-offset: 2px; }
+    .family-access small { opacity: .78; font-size: .8rem; }
 
     .results { display: none; padding: 8px 0 84px; }
     .results.show { display: block; animation: reveal .4s ease; }
@@ -239,7 +245,9 @@
       .finder-head p { margin-top: 8px; }
       .input-side, .needs-side { padding: 24px 20px; }
       .submit-bar { align-items: stretch; flex-direction: column; padding: 20px; }
-      .submit-bar p { display: none; }
+      .submit-bar p { font-size: .9rem; }
+      .family-access { align-items: flex-start; flex-direction: column; }
+      .family-code-input { width: 100%; }
       .option-grid, .select-row { grid-template-columns: 1fr 1fr; }
       .result-heading { align-items: flex-start; flex-direction: column; }
       .result-tools { align-items: flex-start; flex-direction: column; }
@@ -277,321 +285,7 @@
     <section class="shell hero">
       <div>
         <span class="eyebrow">🌿 懂食材，也懂您的口味</span>
-        <h1>家里有什么，<br><em>今天就做什么</em></h1>
-        <p class="hero-copy">输入冰箱里的食材，选择口味和饮食需求。我们帮您搭配简单、软烂、少油盐的家常好菜。</p>
-        <div class="trust-row"><span>步骤说得明白</span><span>用量写得清楚</span><span>健康提醒贴心</span></div>
-      </div>
-      <div class="bowl-art" aria-label="一盘营养丰富的家常菜插画">
-        <div class="art-circle"></div>
-        <div class="steam">〰 〰</div>
-        <div class="plate"><div class="food"><i class="leaf1"></i><i class="leaf2"></i><i class="tomato1"></i><i class="tomato2"></i><i class="tofu1"></i><i class="tofu2"></i></div></div>
-        <div class="art-note note-a">🥬 少油少盐</div><div class="art-note note-b">⏱ 30分钟内</div>
-      </div>
-    </section>
-
-    <section class="shell finder-wrap" id="finder">
-      <div class="finder">
-        <div class="finder-head">
-          <div><span class="step-kicker">开始搭配</span><h2>告诉我们，您有什么食材？</h2></div>
-          <p>不用写用量，一个一个添加即可</p>
-        </div>
-        <div class="finder-body">
-          <div class="input-side">
-            <label class="field-label" for="ingredientInput"><span>现有食材</span><small>至少添加 1 种</small></label>
-            <div class="ingredient-input-row">
-              <input id="ingredientInput" class="ingredient-input" type="text" placeholder="例如：鸡蛋、西红柿、豆腐" autocomplete="off">
-              <button id="addIngredient" class="add-btn" type="button">添加</button>
-            </div>
-            <p class="hint">可以用逗号分隔，一次输入多种食材</p>
-            <div id="ingredientChips" class="chip-box" aria-live="polite"></div>
-            <div class="quick-title">常用食材，点一下就添加</div>
-            <div class="quick-list" id="quickIngredients">
-              <button class="quick-chip" type="button">鸡蛋</button><button class="quick-chip" type="button">西红柿</button><button class="quick-chip" type="button">豆腐</button><button class="quick-chip" type="button">白菜</button><button class="quick-chip" type="button">土豆</button><button class="quick-chip" type="button">鸡肉</button><button class="quick-chip" type="button">鱼</button><button class="quick-chip" type="button">香菇</button><button class="quick-chip" type="button">南瓜</button><button class="quick-chip" type="button">冬瓜</button><button class="quick-chip" type="button">牛肉</button><button class="quick-chip" type="button">排骨</button><button class="quick-chip" type="button">虾仁</button><button class="quick-chip" type="button">西兰花</button><button class="quick-chip" type="button">山药</button><button class="quick-chip" type="button">茄子</button>
-            </div>
-          </div>
-          <div class="needs-side">
-            <div class="need-group">
-              <div class="need-title">希望怎么吃？ <span style="color:var(--muted);font-weight:400">可多选</span></div>
-              <div class="option-grid">
-                <div class="option"><input id="soft" name="needs" value="soft" type="checkbox"><label for="soft"><b>🥣</b> 软烂易嚼</label></div>
-                <div class="option"><input id="lowSalt" name="needs" value="lowSalt" type="checkbox"><label for="lowSalt"><b>🧂</b> 少盐清淡</label></div>
-                <div class="option"><input id="lowOil" name="needs" value="lowOil" type="checkbox"><label for="lowOil"><b>💧</b> 少油烹饪</label></div>
-                <div class="option"><input id="protein" name="needs" value="protein" type="checkbox"><label for="protein"><b>💪</b> 补充蛋白</label></div>
-              </div>
-            </div>
-            <div class="need-group">
-              <div class="need-title">用餐人数与时间</div>
-              <div class="select-row">
-                <label><span class="sr-only">用餐人数</span><select id="servings"><option value="1">1 人份</option><option value="2" selected>2 人份</option><option value="3">3 人份</option><option value="4">4 人份</option><option value="5">5 人份</option><option value="6">6 人份</option></select></label>
-                <label><span class="sr-only">制作时间</span><select id="timeLimit"><option value="all">时间不限</option><option value="20">20 分钟内</option><option value="30" selected>30 分钟内</option><option value="45">45 分钟内</option></select></label>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="submit-bar">
-          <p><strong>✨ DeepSeek 多样推荐已开启</strong><small>首次使用会提示登录；食材与所选需求将发送给 AI 生成菜谱。AI 不可用时自动使用本地菜谱。</small></p>
-          <button class="recommend-btn" id="recommendBtn" type="button">DeepSeek 为我推荐 →</button>
-        </div>
-      </div>
-    </section>
-
-    <section class="shell results" id="results" aria-live="polite">
-      <div class="result-heading">
-        <div><span class="step-kicker">为您找到</span><h2>今天可以这样吃</h2><p id="resultSummary">根据您的食材和需求，优先推荐以下菜品</p></div>
-        <span class="result-count" id="resultCount">0 道菜</span>
-      </div>
-      <div class="result-tools">
-        <div class="category-tabs" id="categoryTabs" aria-label="菜品分类">
-          <button class="category-btn active" type="button" data-category="全部">全部</button>
-          <button class="category-btn" type="button" data-category="蒸菜">蒸菜</button>
-          <button class="category-btn" type="button" data-category="炖煮">炖煮</button>
-          <button class="category-btn" type="button" data-category="快手菜">快手菜</button>
-          <button class="category-btn" type="button" data-category="汤羹">汤羹</button>
-          <button class="category-btn" type="button" data-category="主食">主食</button>
-        </div>
-        <button class="shuffle-btn" id="shuffleBtn" type="button" hidden>换一批菜品 ↻</button>
-      </div>
-      <div class="recipe-grid" id="recipeGrid"></div>
-    </section>
-
-    <section class="tips">
-      <div class="shell tips-inner">
-        <div><span class="step-kicker" style="color:#f4ad73">厨房小提醒</span><h2>吃得清淡，<br>也要吃得有滋味</h2><p class="tips-intro">日常烹饪记住三个小方法，让饭菜更适合中老年人的身体需要。</p></div>
-        <div class="tips-grid">
-          <div class="tip"><b>①</b><strong>盐要后放</strong><span>出锅前再调味，更容易尝出咸味。</span></div>
-          <div class="tip"><b>②</b><strong>食材切小</strong><span>顺着纹理切薄切小，更易咀嚼消化。</span></div>
-          <div class="tip"><b>③</b><strong>每天换样</strong><span>肉蛋奶豆和蔬菜轮换，营养更全面。</span></div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer><div class="shell"><span>暖味厨房 · DeepSeek 动态推荐 + 30 道以上本地菜谱</span><span>AI 建议仅供日常烹饪参考；如有特殊疾病请遵医嘱。</span></div></footer>
-
-  <dialog id="recipeDialog" aria-labelledby="dialogTitle">
-    <div class="modal-head"><div><span class="step-kicker">详细做法</span><h2 id="dialogTitle"></h2></div><button class="close-btn" id="closeDialog" type="button" aria-label="关闭">×</button></div>
-    <div class="modal-body" id="dialogBody"></div>
-  </dialog>
-  <div class="toast" id="toast" role="status"></div>
-
-  <script src="https://js.puter.com/v2/"></script>
-  <script>
-    const recipes = [
-      {
-        id:'tomato-egg', name:'西红柿炒鸡蛋', emoji:'🍅', tone:'orange', time:15, level:'很简单', method:'炒',
-        ingredients:['西红柿','鸡蛋'], aliases:{'番茄':'西红柿'}, needs:['soft','lowSalt','protein'], tags:['酸甜开胃','软嫩好嚼'],
-        amounts:{'西红柿':'2个（约400克）','鸡蛋':'3个','食用油':'1汤匙','盐':'约1克','清水':'2汤匙'},
-        steps:['西红柿洗净，顶部划十字，用热水烫1分钟后去皮，切成小块。','鸡蛋打入碗中，加2汤匙清水搅匀，这样炒出来更嫩。','锅烧至微热，放一半油，倒入蛋液。待底部凝固后轻轻推散，盛出备用。','锅中放剩余油，下西红柿小火翻炒，盖盖焖2分钟，让汤汁充分出来。','倒回鸡蛋，轻轻翻匀，出锅前放盐。牙口不好可再焖1分钟。'],
-        note:'不额外放糖也有自然酸甜味。需要控糖时，可选择成熟度高的西红柿改善口感。'
-      },
-      {
-        id:'tofu-mushroom', name:'香菇烧豆腐', emoji:'🍲', tone:'green', time:25, level:'简单', method:'烧',
-        ingredients:['豆腐','香菇'], aliases:{'蘑菇':'香菇','嫩豆腐':'豆腐','老豆腐':'豆腐'}, needs:['soft','lowOil','protein','lowSalt'], tags:['植物蛋白','鲜香软嫩'],
-        amounts:{'北豆腐':'300克','鲜香菇':'5朵','小葱':'1根','食用油':'2茶匙','生抽':'1茶匙','清水':'半碗'},
-        steps:['豆腐切成2厘米见方的小块，香菇去蒂后切薄片，小葱切末。','锅中加清水烧至微开，放入豆腐焯1分钟，捞出。这样豆腐不易碎，也能去豆腥味。','锅中放油，下香菇小火炒软，闻到香味后加入半碗清水。','放入豆腐和生抽，盖上锅盖，小火烧8分钟。中途不要大力翻动，可轻晃锅身。','打开锅盖略收汤汁，撒葱花即可。若咀嚼困难，可多留些汤汁。'],
-        note:'香菇和生抽本身有鲜味，不必再放味精。肾功能不全者食用豆制品前请咨询医生。'
-      },
-      {
-        id:'steamed-fish', name:'葱姜清蒸鱼', emoji:'🐟', tone:'yellow', time:25, level:'简单', method:'蒸',
-        ingredients:['鱼','葱','姜'], aliases:{'鲈鱼':'鱼','鳕鱼':'鱼','草鱼':'鱼','小葱':'葱','生姜':'姜'}, needs:['lowOil','protein','lowSalt','soft'], tags:['优质蛋白','肉质细嫩'],
-        amounts:{'鲈鱼或鳕鱼':'约500克','姜':'4片','小葱':'2根','蒸鱼豉油':'1茶匙','食用油':'1茶匙'},
-        steps:['鱼处理干净后，在较厚的位置划两刀。用厨房纸擦干水分。','盘底铺姜片和葱段，放上鱼，鱼身再铺2片姜。','蒸锅水烧开后再放鱼，中火蒸8～10分钟。鱼眼突出、鱼肉可轻松拨开即熟。','关火后焖2分钟，取出倒掉盘中腥水，挑去旧葱姜。','放上新葱丝，淋1茶匙蒸鱼豉油。可省略淋热油，味道也清鲜。食用时仔细去刺。'],
-        note:'给视力较弱或吞咽能力下降的长辈食用，建议选择刺少的鳕鱼或由家人提前剔净鱼刺。'
-      },
-      {
-        id:'cabbage-tofu-soup', name:'白菜豆腐汤', emoji:'🥬', tone:'green', time:20, level:'很简单', method:'煮',
-        ingredients:['白菜','豆腐'], aliases:{'大白菜':'白菜','娃娃菜':'白菜','嫩豆腐':'豆腐'}, needs:['soft','lowOil','lowSalt','protein'], tags:['汤菜合一','清淡暖胃'],
-        amounts:{'白菜':'250克','嫩豆腐':'200克','虾皮（可选）':'5克','姜':'2片','香油':'几滴','清水':'700毫升'},
-        steps:['白菜洗净，菜帮斜切成薄片，菜叶切小块；豆腐切成小块。','锅中加入清水和姜片，水开后先放白菜帮，中火煮4分钟。','放入豆腐和白菜叶，再煮5分钟。全程轻轻推动，避免豆腐碎裂。','按口味加少量盐。若放虾皮，先用清水冲洗，盐量还要减少。','关火后滴几滴香油即可。吞咽不便时，可把菜再切碎一些。'],
-        note:'汤不能完全代替饮水，且喝太多浓汤会增加盐和嘌呤摄入，本菜建议连菜带汤适量食用。'
-      },
-      {
-        id:'potato-chicken', name:'土豆焖鸡块', emoji:'🥔', tone:'yellow', time:40, level:'家常', method:'焖',
-        ingredients:['土豆','鸡肉','姜'], aliases:{'鸡腿':'鸡肉','鸡胸肉':'鸡肉','生姜':'姜'}, needs:['soft','protein'], tags:['软烂下饭','荤素搭配'],
-        amounts:{'去皮鸡腿肉':'300克','土豆':'2个（约350克）','胡萝卜':'半根','姜':'3片','生抽':'2茶匙','食用油':'2茶匙','清水':'适量'},
-        steps:['鸡肉去掉明显鸡皮和油脂，切成一口大小；土豆和胡萝卜切小块。','鸡块冷水下锅，水开后撇去浮沫，捞出沥干。','锅中放少量油和姜片，下鸡块翻炒至表面变白，加入生抽翻匀。','加入土豆、胡萝卜和没过食材一半的热水，烧开后转小火焖20分钟。','用筷子能轻松扎透土豆时即可。大火收汁1～2分钟，不需要另外加盐。'],
-        note:'鸡腿肉比鸡胸肉更嫩。需要控制体重或血脂时，应去皮食用，并减少汤汁拌饭。'
-      },
-      {
-        id:'egg-custard', name:'嫩滑蒸蛋羹', emoji:'🥚', tone:'orange', time:18, level:'很简单', method:'蒸',
-        ingredients:['鸡蛋'], aliases:{'蛋':'鸡蛋'}, needs:['soft','lowOil','protein','lowSalt'], tags:['入口即化','早餐晚餐皆宜'],
-        amounts:{'鸡蛋':'2个','温水':'约180毫升','生抽':'半茶匙','香油':'2滴','葱花（可选）':'少许'},
-        steps:['鸡蛋打入碗中，用筷子充分搅散。','加入约为蛋液1.5倍的温水，继续搅匀。水温以不烫手为宜。','用细筛过滤蛋液，撇掉表面泡沫，碗上盖一个盘子或耐热保鲜膜。','蒸锅水开后放入，中小火蒸10分钟，关火焖2分钟。','取出后划成小格，淋半茶匙生抽和2滴香油。'],
-        note:'蛋羹口感软滑，但吞咽障碍人群仍需评估进食安全；普通成年人每天吃1个鸡蛋通常即可满足需要。'
-      },
-      {
-        id:'mushroom-chicken-congee', name:'香菇鸡肉粥', emoji:'🥣', tone:'purple', time:45, level:'简单', method:'煮',
-        ingredients:['大米','鸡肉','香菇','姜'], aliases:{'米':'大米','鸡胸肉':'鸡肉','鸡腿':'鸡肉','蘑菇':'香菇'}, needs:['soft','lowOil','protein'], tags:['软糯温暖','营养主食'],
-        amounts:{'大米':'100克','鸡肉':'100克','香菇':'3朵','姜':'2片','青菜':'50克','清水':'1000毫升'},
-        steps:['大米淘洗后浸泡20分钟；香菇切小丁，鸡肉切细丝，青菜切碎。','大米和清水放入锅中，大火煮开后转小火，锅盖留缝煮25分钟。','放入香菇丁和姜片，继续煮8分钟，期间轻轻搅动防止粘底。','放入鸡肉丝，迅速搅散，再煮至鸡肉完全变白、熟透。','加入碎青菜煮2分钟，放少量盐调味。静置几分钟再吃，避免烫伤。'],
-        note:'粥升高餐后血糖较快，糖尿病人不宜长期只喝粥；可增加鸡肉和蔬菜，并控制一餐总量。'
-      },
-      {
-        id:'celery-wood-ear', name:'芹菜木耳炒肉片', emoji:'🥗', tone:'green', time:25, level:'家常', method:'炒',
-        ingredients:['芹菜','木耳','猪肉'], aliases:{'西芹':'芹菜','黑木耳':'木耳','瘦肉':'猪肉'}, needs:['lowOil','protein'], tags:['膳食纤维','清脆鲜香'],
-        amounts:{'芹菜':'200克','泡发木耳':'80克','瘦猪肉':'120克','食用油':'2茶匙','生抽':'1茶匙','淀粉':'半茶匙'},
-        steps:['木耳彻底泡发、去根并撕小朵；芹菜撕去老筋后斜切薄片；瘦肉逆纹切薄片。','肉片加生抽、淀粉和1汤匙清水抓匀，静置10分钟。','水开后放木耳和芹菜焯1分钟，捞出沥水。','锅烧热放油，下肉片迅速滑散，炒到完全变色熟透。','倒入芹菜和木耳，快速翻炒1分钟即可。牙口不好者可多焯2分钟。'],
-        note:'鲜木耳不可直接食用，干木耳不要泡发过夜。咀嚼困难时建议选择其他软烂菜品。'
-      },
-      {
-        id:'radish-beef-soup', name:'萝卜炖牛肉', emoji:'🍜', tone:'orange', time:45, level:'需耐心', method:'炖',
-        ingredients:['白萝卜','牛肉','姜'], aliases:{'萝卜':'白萝卜','牛腩':'牛肉','生姜':'姜'}, needs:['soft','protein','lowOil'], tags:['炖得软烂','暖胃补充蛋白'],
-        amounts:{'牛腩':'300克','白萝卜':'400克','姜':'4片','葱':'1段','清水':'适量','盐':'约1克'},
-        steps:['牛肉切成2厘米小块，冷水浸泡20分钟，中间换一次水。白萝卜切滚刀小块。','牛肉冷水下锅，水开后煮2分钟，捞出用温水冲净。','牛肉、姜片和葱段放入锅中，加足量热水。烧开后转小火炖30分钟。','加入白萝卜，继续小火炖15分钟，直到牛肉和萝卜都能用筷子轻松扎透。','挑出葱姜，撇去表面浮油，出锅前放少量盐。'],
-        note:'牛肉应炖至软烂并切小口食用。高尿酸或痛风急性期人群不建议喝肉汤。'
-      },
-      {
-        id:'shrimp-tofu-custard', name:'虾仁豆腐蒸蛋', emoji:'🦐', tone:'yellow', time:25, level:'简单', method:'蒸', category:'蒸菜',
-        ingredients:['虾仁','豆腐','鸡蛋'], aliases:{'鲜虾':'虾仁','大虾':'虾仁','嫩豆腐':'豆腐','蛋':'鸡蛋'}, needs:['soft','lowOil','protein','lowSalt'], tags:['三种优质蛋白','嫩滑易入口'],
-        amounts:{'鸡蛋':'2个','嫩豆腐':'150克','虾仁':'8只','温水':'160毫升','生抽':'半茶匙','香油':'2滴'},
-        steps:['虾仁去虾线、切成小段；豆腐切成1.5厘米小块，平铺在深盘中。','鸡蛋打散，加入温水搅匀，过筛后缓缓倒在豆腐上。','盘子盖上耐热盘或保鲜膜，水开后中小火蒸8分钟。','打开盖子摆上虾仁，再蒸4～5分钟，确认虾仁完全变色熟透。','出锅后淋半茶匙生抽和香油。食用前稍放凉，避免蛋羹内部烫口。'],
-        note:'虾仁、鸡蛋和豆腐能提供蛋白质。对海鲜过敏者可把虾仁换成鸡肉末。'
-      },
-      {
-        id:'mushroom-steamed-chicken', name:'香菇蒸滑鸡', emoji:'🍄', tone:'green', time:35, level:'家常', method:'蒸', category:'蒸菜',
-        ingredients:['香菇','鸡肉','姜'], aliases:{'蘑菇':'香菇','鸡腿':'鸡肉','鸡胸肉':'鸡肉','生姜':'姜'}, needs:['soft','lowOil','protein','lowSalt'], tags:['少油蒸制','鲜香软嫩'],
-        amounts:{'去皮鸡腿肉':'300克','鲜香菇':'5朵','姜':'3片','生抽':'1茶匙','淀粉':'1茶匙','食用油':'1茶匙'},
-        steps:['鸡腿肉去皮、切成小块；香菇去蒂切厚片，姜切细丝。','鸡肉加入生抽、淀粉、1茶匙油和2汤匙清水，抓匀后腌10分钟。','香菇铺在盘底，鸡肉平铺在上面，撒姜丝，避免堆得太厚。','蒸锅水开后放入，中火蒸15分钟；较大鸡块可延长3分钟。','夹开最厚的一块，中心完全变白且没有血水即可。轻轻拌匀汤汁后食用。'],
-        note:'选去皮鸡腿肉更嫩，也能减少多余脂肪。蒸出的原汁已有鲜味，不必再加盐。'
-      },
-      {
-        id:'pumpkin-steamed-chicken', name:'南瓜蒸鸡块', emoji:'🎃', tone:'orange', time:30, level:'简单', method:'蒸', category:'蒸菜',
-        ingredients:['南瓜','鸡肉'], aliases:{'老南瓜':'南瓜','鸡腿':'鸡肉','鸡胸肉':'鸡肉'}, needs:['soft','lowOil','protein','lowSalt'], tags:['软糯清甜','荤素一盘'],
-        amounts:{'南瓜':'350克','去皮鸡腿肉':'250克','姜':'2片','生抽':'1茶匙','淀粉':'1茶匙','清水':'2汤匙'},
-        steps:['南瓜去皮去瓤，切成约1.5厘米厚的小块；鸡肉切成一口大小。','鸡肉加生抽、淀粉、姜丝和清水抓匀，腌10分钟。','南瓜铺在盘底，鸡肉均匀放在上面，盘边留出蒸汽流动的空隙。','水开后上锅，中火蒸16～18分钟。','用筷子轻松扎透南瓜，并确认鸡肉中心熟透。拌匀盘中原汁即可。'],
-        note:'南瓜自带甜味，无需加糖。糖尿病人食用时应把南瓜计入一餐主食总量。'
-      },
-      {
-        id:'minced-pork-steamed-tofu', name:'肉末蒸豆腐', emoji:'🥢', tone:'purple', time:25, level:'简单', method:'蒸', category:'蒸菜',
-        ingredients:['猪肉','豆腐'], aliases:{'肉末':'猪肉','瘦肉':'猪肉','嫩豆腐':'豆腐'}, needs:['soft','lowOil','protein','lowSalt'], tags:['软嫩下饭','一锅蒸熟'],
-        amounts:{'嫩豆腐':'300克','瘦猪肉末':'120克','香菇':'2朵','生抽':'1茶匙','淀粉':'半茶匙','葱花':'少许'},
-        steps:['豆腐切厚片后摆盘；香菇切碎，与猪肉末混合。','肉末加入生抽、淀粉和2汤匙清水，顺一个方向搅至有黏性。','把肉末薄薄铺在豆腐上，尽量铺散，避免中间不熟。','水开后上锅，中火蒸12～14分钟，确认肉末完全熟透。','取出后撒少量葱花。盘中汤汁可保留，豆腐会更滑润。'],
-        note:'选瘦肉末并控制生抽用量。吞咽能力下降时，可把肉末再剁细一些。'
-      },
-      {
-        id:'taro-steamed-ribs', name:'芋头蒸排骨', emoji:'🍖', tone:'purple', time:45, level:'需耐心', method:'蒸', category:'蒸菜',
-        ingredients:['芋头','排骨'], aliases:{'小芋头':'芋头','肋排':'排骨'}, needs:['soft','protein','lowOil'], tags:['粉糯软烂','蒸制少油'],
-        amounts:{'排骨':'350克','芋头':'300克','蒜':'1瓣','生抽':'2茶匙','淀粉':'1茶匙','食用油':'1茶匙'},
-        steps:['排骨切小块，用清水浸泡20分钟去血水，沥干；芋头戴手套去皮后切块。','排骨加蒜末、生抽、淀粉和1茶匙油抓匀，腌15分钟。','芋头铺盘底，排骨平铺在上面，不要重叠。','水开后中火蒸25～30分钟，直到排骨熟透、芋头可轻松夹碎。','出锅后把盘中汁水轻轻拌匀。给长辈食用前剔除细小骨渣。'],
-        note:'芋头必须彻底蒸熟。排骨仍有骨头，视力或咀嚼能力较弱者可改用去骨鸡肉。'
-      },
-      {
-        id:'winter-melon-meatballs', name:'冬瓜汆肉丸', emoji:'🥣', tone:'green', time:35, level:'家常', method:'煮', category:'汤羹',
-        ingredients:['冬瓜','猪肉'], aliases:{'瘦肉':'猪肉','肉末':'猪肉'}, needs:['soft','lowOil','protein','lowSalt'], tags:['清淡汤菜','肉丸软嫩'],
-        amounts:{'冬瓜':'400克','瘦猪肉末':'180克','鸡蛋清':'半个','淀粉':'1茶匙','姜':'2片','清水':'800毫升'},
-        steps:['冬瓜去皮切薄片；肉末加入蛋清、淀粉和2汤匙清水，顺一个方向搅匀。','锅中加入清水和姜片，烧至锅底冒小泡，不要大滚。','手蘸清水，把肉馅团成小丸子逐个放入，小火煮至全部浮起。','撇去浮沫，放入冬瓜片，中火再煮8～10分钟至冬瓜透明。','加约1克盐调味。肉丸给长辈食用前可用勺子分成小块。'],
-        note:'肉丸不宜做得太大；汤要清淡，重点吃冬瓜和肉丸，不必喝完所有汤。'
-      },
-      {
-        id:'yam-carrot-ribs', name:'山药胡萝卜炖排骨', emoji:'🍲', tone:'orange', time:45, level:'需耐心', method:'炖', category:'炖煮',
-        ingredients:['山药','胡萝卜','排骨'], aliases:{'铁棍山药':'山药','肋排':'排骨'}, needs:['soft','protein','lowOil','lowSalt'], tags:['软烂炖菜','根茎搭配'],
-        amounts:{'排骨':'350克','山药':'250克','胡萝卜':'1根','姜':'3片','清水':'适量','盐':'约1克'},
-        steps:['排骨冷水下锅，煮开后撇去浮沫，捞出用温水冲净。','排骨和姜片放入锅中，加热水没过食材，小火炖25分钟。','山药戴手套去皮切块，胡萝卜切小块，一同放入锅中。','继续小火炖15～20分钟，直到山药、胡萝卜和排骨肉都软烂。','撇去表面浮油，加少量盐。食用时留意骨头和碎骨。'],
-        note:'山药黏液可能刺激皮肤，处理时建议戴手套。需要控糖时，山药应计入主食量。'
-      },
-      {
-        id:'tomato-beef-brisket', name:'番茄炖牛腩', emoji:'🍅', tone:'orange', time:45, level:'需耐心', method:'炖', category:'炖煮',
-        ingredients:['西红柿','牛肉','洋葱'], aliases:{'番茄':'西红柿','牛腩':'牛肉'}, needs:['soft','protein','lowOil'], tags:['酸香开胃','牛肉软烂'],
-        amounts:{'牛腩':'350克','西红柿':'3个','洋葱':'半个','姜':'3片','食用油':'1茶匙','生抽':'1茶匙'},
-        steps:['牛腩切2厘米小块，冷水下锅焯2分钟后捞出；西红柿去皮切块，洋葱切碎。','锅中放少量油，下洋葱和一半西红柿，小火炒至出汁。','放入牛腩、姜片和生抽，加热水没过食材，烧开后转小火。','加盖炖30分钟，再放剩余西红柿，继续炖10～15分钟至牛肉软烂。','尝味后再决定是否加盐。牙口不好可把牛肉再剪成更小块。'],
-        note:'利用番茄和洋葱增加风味，可少放盐。高尿酸人群不建议大量喝肉汤。'
-      },
-      {
-        id:'cabbage-meatball-noodles', name:'白菜肉丸炖粉条', emoji:'🍜', tone:'yellow', time:35, level:'家常', method:'炖', category:'炖煮',
-        ingredients:['白菜','猪肉','粉条'], aliases:{'大白菜':'白菜','娃娃菜':'白菜','肉末':'猪肉','红薯粉':'粉条'}, needs:['soft','protein','lowOil'], tags:['一锅暖菜','软烂易嚼'],
-        amounts:{'白菜':'300克','瘦猪肉末':'160克','粉条':'60克','姜':'2片','生抽':'1茶匙','淀粉':'1茶匙'},
-        steps:['粉条提前用温水泡软后剪成短段；白菜帮切薄片、菜叶切小块。','肉末加淀粉、生抽和2汤匙清水搅匀，团成小丸子。','锅中加700毫升清水和姜片，微开时放肉丸，小火煮至浮起。','先放白菜帮和粉条炖6分钟，再放菜叶炖4分钟。','确认粉条柔软、肉丸熟透后即可。粉条入口滑，吞咽困难者可不放。'],
-        note:'粉条属于主食类淀粉，搭配本菜时应适当减少米饭。'
-      },
-      {
-        id:'chestnut-braised-chicken', name:'板栗烧鸡', emoji:'🌰', tone:'yellow', time:45, level:'需耐心', method:'烧', category:'炖煮',
-        ingredients:['板栗','鸡肉'], aliases:{'栗子':'板栗','鸡腿':'鸡肉','鸡胸肉':'鸡肉'}, needs:['soft','protein','lowOil'], tags:['香甜软糯','秋冬家常菜'],
-        amounts:{'去皮鸡腿肉':'300克','熟板栗仁':'180克','胡萝卜':'半根','姜':'3片','生抽':'2茶匙','食用油':'1茶匙'},
-        steps:['鸡肉去皮切小块，胡萝卜切块；板栗确认没有残留硬壳。','鸡块冷水下锅焯水，捞出沥干。','锅中放少量油，下姜片和鸡块翻炒至表面变白，加入生抽。','放入板栗和胡萝卜，加热水至食材一半高，小火焖20分钟。','鸡肉熟透、板栗一压即碎时，开盖略收汁即可。'],
-        note:'板栗淀粉含量较高，应当作部分主食；食用前要仔细检查硬壳碎片。'
-      },
-      {
-        id:'broccoli-shrimp', name:'西兰花烩虾仁', emoji:'🥦', tone:'green', time:20, level:'简单', method:'烩', category:'快手菜',
-        ingredients:['西兰花','虾仁','胡萝卜'], aliases:{'鲜虾':'虾仁','大虾':'虾仁'}, needs:['lowOil','protein','lowSalt'], tags:['色彩丰富','清鲜少油'],
-        amounts:{'西兰花':'250克','虾仁':'150克','胡萝卜':'半根','食用油':'2茶匙','蒜':'1瓣','淀粉水':'3汤匙'},
-        steps:['西兰花切成小朵，用淡盐水浸泡后冲净；胡萝卜切薄片，虾仁去虾线。','水开后放西兰花和胡萝卜焯2分钟，牙口不好可焯3分钟，捞出。','锅中放油和蒜末，小火炒香后放虾仁，翻炒至变色。','倒入西兰花和胡萝卜，加入3汤匙清水，小火焖2分钟。','淋入薄薄的淀粉水使汤汁挂在食材上，加少量盐即可。'],
-        note:'西兰花要切小并煮软。对虾过敏者可换成鸡肉片或豆腐。'
-      },
-      {
-        id:'celery-tofu-strips', name:'芹菜炒豆干', emoji:'🥬', tone:'green', time:20, level:'很简单', method:'炒', category:'快手菜',
-        ingredients:['芹菜','豆干','胡萝卜'], aliases:{'西芹':'芹菜','豆腐干':'豆干'}, needs:['lowOil','protein','lowSalt'], tags:['植物蛋白','清香家常'],
-        amounts:{'芹菜':'200克','豆干':'120克','胡萝卜':'半根','食用油':'2茶匙','生抽':'1茶匙','清水':'3汤匙'},
-        steps:['芹菜撕去老筋，斜切薄片；豆干和胡萝卜都切细条。','芹菜和胡萝卜放入开水中焯2分钟，捞出沥干。','锅中放油，下豆干小火翻炒1分钟。','加入芹菜和胡萝卜，放生抽和清水，翻匀后加盖焖2分钟。','打开锅盖尝软硬，牙口不好可再焖1～2分钟。'],
-        note:'豆干钠含量可能较高，选原味豆干并少放酱油。咀嚼困难者可改用嫩豆腐。'
-      },
-      {
-        id:'garlic-steamed-eggplant', name:'蒜香蒸茄子', emoji:'🍆', tone:'purple', time:25, level:'很简单', method:'蒸', category:'蒸菜',
-        ingredients:['茄子','大蒜'], aliases:{'紫茄子':'茄子','蒜':'大蒜'}, needs:['soft','lowOil','lowSalt'], tags:['蒸制少油','柔软入味'],
-        amounts:{'长茄子':'2根','大蒜':'2瓣','生抽':'1茶匙','香醋':'1茶匙','香油':'半茶匙','葱花':'少许'},
-        steps:['茄子洗净去蒂，切成约8厘米长的粗条，立即摆盘防止变色。','蒸锅水开后放入茄子，中火蒸10～12分钟，直到筷子可轻松扎透。','蒜切成细末，与生抽、香醋、香油和1汤匙温水调成料汁。','茄子稍放凉后用筷子轻轻拨散，淋上料汁。','静置3分钟入味。牙口不好可再把茄子剪成短段。'],
-        note:'茄子很吸油，蒸制比油炸或煎炒更适合日常。胃部不适时可减少生蒜和醋。'
-      },
-      {
-        id:'loofah-scrambled-eggs', name:'丝瓜炒鸡蛋', emoji:'🥒', tone:'green', time:18, level:'很简单', method:'炒', category:'快手菜',
-        ingredients:['丝瓜','鸡蛋'], aliases:{'蛋':'鸡蛋'}, needs:['soft','protein','lowOil','lowSalt'], tags:['鲜嫩多汁','快手家常'],
-        amounts:{'丝瓜':'2根','鸡蛋':'2个','食用油':'2茶匙','清水':'3汤匙','盐':'约1克'},
-        steps:['丝瓜削去硬皮，切成小滚刀块；鸡蛋打散，加入1汤匙清水。','锅中放1茶匙油，倒入蛋液，轻轻推散后盛出。','锅中再放1茶匙油，下丝瓜翻炒1分钟，加入清水。','加盖小火焖3～4分钟，直到丝瓜变软出汁。','倒回鸡蛋轻轻翻匀，加少量盐即可。'],
-        note:'丝瓜应现切现做；若有明显苦味不要食用。'
-      },
-      {
-        id:'winter-melon-shrimp-soup', name:'冬瓜虾仁汤', emoji:'🦐', tone:'green', time:20, level:'很简单', method:'煮', category:'汤羹',
-        ingredients:['冬瓜','虾仁'], aliases:{'鲜虾':'虾仁','大虾':'虾仁'}, needs:['soft','protein','lowOil','lowSalt'], tags:['清淡鲜美','十几分钟上桌'],
-        amounts:{'冬瓜':'350克','虾仁':'120克','姜':'2片','小葱':'1根','清水':'700毫升','香油':'2滴'},
-        steps:['冬瓜去皮去瓤，切成薄片；虾仁去虾线后切成两段。','锅中加清水和姜片，烧开后放冬瓜，中火煮6分钟。','冬瓜开始透明时放入虾仁，轻轻搅散。','再煮3分钟，确认虾仁完全变色熟透，加少量盐。','关火后滴2滴香油、撒葱花。食用前略微放凉。'],
-        note:'虾仁本身有鲜味，少量盐即可。肾功能异常者需遵医嘱控制汤水和蛋白质。'
-      },
-      {
-        id:'spinach-liver-soup', name:'菠菜猪肝汤', emoji:'🥬', tone:'green', time:20, level:'家常', method:'煮', category:'汤羹',
-        ingredients:['菠菜','猪肝','姜'], aliases:{'生姜':'姜'}, needs:['soft','protein','lowOil'], tags:['嫩滑汤菜','偶尔换口味'],
-        amounts:{'菠菜':'180克','猪肝':'120克','姜':'2片','淀粉':'半茶匙','料酒':'1茶匙','清水':'700毫升'},
-        steps:['猪肝切薄片，用流动水轻轻冲洗后沥干，加淀粉和料酒抓匀。','菠菜洗净切短段，放入开水中焯30秒后捞出。','锅中重新加清水和姜片，水开后放猪肝片，迅速拨散。','煮至猪肝完全变色、中心无血水，约2～3分钟，再放菠菜。','再煮1分钟，加少量盐即可。不要为了追求嫩而缩短猪肝熟制时间。'],
-        note:'动物内脏胆固醇和嘌呤较高，适合偶尔少量食用，不建议频繁安排。'
-      },
-      {
-        id:'cod-tofu-soup', name:'鳕鱼豆腐汤', emoji:'🐟', tone:'yellow', time:30, level:'简单', method:'煮', category:'汤羹',
-        ingredients:['鳕鱼','豆腐','姜'], aliases:{'鳕鱼块':'鳕鱼','嫩豆腐':'豆腐','生姜':'姜'}, needs:['soft','protein','lowOil','lowSalt'], tags:['刺少软嫩','鱼豆搭配'],
-        amounts:{'鳕鱼块':'250克','嫩豆腐':'200克','姜':'3片','小葱':'1根','食用油':'1茶匙','清水':'700毫升'},
-        steps:['鳕鱼解冻后吸干水分，仔细摸查并去除残留鱼刺，切成大块；豆腐切块。','锅中放1茶匙油和姜片，小火煸香，加入温水烧开。','放入豆腐，中火煮5分钟。','轻轻放入鳕鱼块，小火煮6～8分钟，避免大力翻动。','鱼肉变白、能轻松分开时加少量盐和葱花。再次检查鱼刺后再给长辈食用。'],
-        note:'鳕鱼通常刺较少，但并非绝对无刺；食用前仍需家人仔细检查。'
-      },
-      {
-        id:'pumpkin-millet-porridge', name:'南瓜小米粥', emoji:'🥣', tone:'orange', time:40, level:'很简单', method:'煮', category:'主食',
-        ingredients:['南瓜','小米'], aliases:{'老南瓜':'南瓜'}, needs:['soft','lowOil','lowSalt'], tags:['软糯主食','自然清甜'],
-        amounts:{'小米':'100克','南瓜':'250克','清水':'1000毫升'},
-        steps:['小米淘洗一遍即可，不要用力搓洗；南瓜去皮切成小丁。','锅中加清水烧开，放入小米，搅动几下防止粘底。','再次煮开后转小火，锅盖留一条缝，煮15分钟。','加入南瓜丁，继续小火煮15～20分钟，中间搅拌2次。','南瓜软烂后用勺背轻压一部分，使粥更绵软。放温后食用。'],
-        note:'不要额外加糖。粥消化较快，糖尿病人应控制一餐总量，并搭配鸡蛋、豆制品或蔬菜。'
-      },
-      {
-        id:'mushroom-chicken-rice', name:'香菇鸡肉焖饭', emoji:'🍚', tone:'purple', time:45, level:'家常', method:'焖', category:'主食',
-        ingredients:['大米','香菇','鸡肉','胡萝卜'], aliases:{'米':'大米','蘑菇':'香菇','鸡腿':'鸡肉','鸡胸肉':'鸡肉'}, needs:['soft','protein','lowOil'], tags:['饭菜一锅出','食材丰富'],
-        amounts:{'大米':'180克','去皮鸡腿肉':'180克','鲜香菇':'4朵','胡萝卜':'半根','生抽':'2茶匙','食用油':'1茶匙'},
-        steps:['大米淘洗后按平时水量放入电饭锅；鸡肉、香菇和胡萝卜都切成小丁。','锅中放少量油，把鸡肉炒至变白，加入香菇、胡萝卜和生抽翻匀。','把炒好的配料连同少量汤汁铺在米上，不要与生米过度搅拌。','启动正常煮饭程序，结束后继续焖10分钟。','打开锅盖充分拌匀。确认鸡肉熟透，饭太硬时可加少量热水再焖5分钟。'],
-        note:'焖饭容易不知不觉吃多，建议按人数盛好，并另外搭配一份绿叶蔬菜。'
-      },
-      {
-        id:'shrimp-vegetable-noodles', name:'虾仁蔬菜烩面', emoji:'🍜', tone:'green', time:25, level:'简单', method:'煮', category:'主食',
-        ingredients:['面条','虾仁','青菜','胡萝卜'], aliases:{'挂面':'面条','鲜虾':'虾仁','小白菜':'青菜','油菜':'青菜'}, needs:['soft','protein','lowOil'], tags:['一碗有菜有肉','软面易入口'],
-        amounts:{'面条':'160克','虾仁':'120克','青菜':'150克','胡萝卜':'半根','香菇':'2朵','清水':'900毫升'},
-        steps:['虾仁去虾线切段；青菜切碎，胡萝卜和香菇切薄片。','锅中加清水，先放胡萝卜和香菇煮4分钟。','放入面条，用筷子拨散，按包装时间煮到偏软。','加入虾仁煮至完全变色，再放青菜煮1～2分钟。','加少量盐，连面带菜盛出。面条过长时可在碗中用食物剪剪短。'],
-        note:'选择钠含量较低的面条，不使用整包调味料。吞咽困难者应根据专业评估调整稠度。'
-      },
-      {
-        id:'yam-chicken-soup', name:'山药鸡肉羹', emoji:'🥣', tone:'yellow', time:30, level:'简单', method:'煮', category:'汤羹',
-        ingredients:['山药','鸡肉','香菇'], aliases:{'铁棍山药':'山药','鸡胸肉':'鸡肉','鸡腿':'鸡肉','蘑菇':'香菇'}, needs:['soft','protein','lowOil','lowSalt'], tags:['细滑羹汤','食材切碎易入口'],
-        amounts:{'山药':'220克','鸡肉':'120克','香菇':'3朵','胡萝卜':'半根','淀粉水':'3汤匙','清水':'800毫升'},
-        steps:['山药戴手套去皮，一半切小丁、一半用刀背拍碎；鸡肉、香菇和胡萝卜切细丁。','锅中加清水，放入山药和胡萝卜，中火煮10分钟。','加入香菇和鸡肉丁，边放边搅散，煮至鸡肉完全熟透。','把拍碎的山药放入，再煮5分钟，汤会自然变稠。','如需更浓可淋少量淀粉水，最后加少量盐。放温后小口食用。'],
-        note:'羹汤温度不易察觉，食用前要充分放凉。山药属于含淀粉食物，应适当减少其他主食。'
-      },
-      {
-        id:'tofu-stuffed-pork', name:'豆腐酿肉煲', emoji:'🍲', tone:'orange', time:40, level:'家常', method:'炖', category:'炖煮',
-        ingredients:['豆腐','猪肉','香菇'], aliases:{'北豆腐':'豆腐','肉末':'猪肉','瘦肉':'猪肉','蘑菇':'香菇'}, needs:['soft','protein','lowOil'], tags:['豆肉搭配','汤汁软润'],
-        amounts:{'北豆腐':'350克','瘦猪肉末':'150克','香菇':'3朵','生抽':'2茶匙','淀粉':'1茶匙','清水':'半碗'},
-        steps:['豆腐切成较厚的方块，中间用小勺轻轻挖一个浅窝；香菇切碎。','肉末与香菇碎、淀粉、1茶匙生抽和2汤匙清水搅匀。','把少量肉馅填进豆腐浅窝，不要塞得过厚。','豆腐放入平底锅或砂锅，加半碗清水和剩余生抽，小火加盖焖12分钟。','确认肉馅中心完全熟透，汤汁略浓即可。食用时用勺分成小块。'],
+        <h1>家里有什么，…9705 tokens truncated…','确认肉馅中心完全熟透，汤汁略浓即可。食用时用勺分成小块。'],
         note:'豆腐无需油煎也能入味，可减少用油。肾功能不全者食用豆制品前请咨询医生。'
       }
     ];
@@ -604,10 +298,12 @@
     let resultOffset = 0;
     let activeCategory = '全部';
     let resultSource = 'local';
+    let resultLimits = null;
     const pageSize = 6;
     const globalAliases = {'番茄':'西红柿','鸡腿':'鸡肉','鸡胸':'鸡肉','鸡胸肉':'鸡肉','肉末':'猪肉','瘦肉':'猪肉','鲜虾':'虾仁','大虾':'虾仁','蘑菇':'香菇','嫩豆腐':'豆腐','老豆腐':'豆腐','北豆腐':'豆腐','蛋':'鸡蛋','米':'大米','小白菜':'青菜','油菜':'青菜','娃娃菜':'白菜'};
     const chips = document.getElementById('ingredientChips');
     const input = document.getElementById('ingredientInput');
+    const familyCode = document.getElementById('familyCode');
     const toast = document.getElementById('toast');
 
     function normalize(value) { return String(value || '').trim().replace(/\s+/g, ''); }
@@ -678,18 +374,13 @@
         .sort((a,b) => b.score - a.score || a.time - b.time);
       return diversify(scored);
     }
-    function aiResponseText(response) {
-      if (typeof response === 'string') return response;
-      const content = response && response.message && response.message.content;
-      if (typeof content === 'string') return content;
-      if (Array.isArray(content)) return content.map(part => typeof part === 'string' ? part : (part.text || '')).join('');
-      return (response && response.text) || '';
-    }
-    function parseAIRecipes(text, needs, servings) {
-      const clean = String(text || '').replace(/```(?:json)?/gi, '').replace(/```/g, '').trim();
-      const start = clean.indexOf('['), end = clean.lastIndexOf(']');
-      if (start < 0 || end <= start) throw new Error('AI 返回内容不完整');
-      const data = JSON.parse(clean.slice(start, end + 1));
+    function parseAIRecipes(payload, needs, servings) {
+      let data = Array.isArray(payload) ? payload : payload && payload.recipes;
+      if (!Array.isArray(data) && payload && typeof payload.content === 'string') {
+        const clean = payload.content.replace(/```(?:json)?/gi, '').replace(/```/g, '').trim();
+        const parsed = JSON.parse(clean);
+        data = Array.isArray(parsed) ? parsed : parsed.recipes;
+      }
       if (!Array.isArray(data)) throw new Error('AI 返回格式不正确');
       const tones = ['orange','green','yellow','purple'];
       const emojis = {'蒸菜':'🥢','炖煮':'🍲','快手菜':'🥗','汤羹':'🥣','主食':'🍚'};
@@ -710,10 +401,30 @@
         return {...recipe, matches, missing:recipe.ingredients.filter(x => !matches.includes(x)), needHits:needs.length, score:100, matchPercent:recipe.ingredients.length ? Math.round(matches.length / recipe.ingredients.length * 100) : 0};
       }).filter(item => item.name && item.ingredients.length && item.steps.length >= 3);
     }
-    function buildAIPrompt(needs, limit, servings) {
-      const needNames = {soft:'软烂易嚼',lowSalt:'少盐清淡',lowOil:'少油烹饪',protein:'补充蛋白质'};
-      const recent = JSON.parse(localStorage.getItem('warmKitchenRecentAI') || '[]').slice(0,16);
-      return `你是一位熟悉中国家庭烹饪、适老饮食和食品安全的菜谱设计师。\n现有食材：${ingredients.join('、')}。用餐人数：${servings}人。时间要求：${limit === 'all' ? '不限，尽量45分钟内' : limit + '分钟内'}。饮食偏好：${needs.length ? needs.map(n => needNames[n]).join('、') : '日常均衡'}。\n请设计8道彼此差异明显、真实可操作的中式家常菜，尽量覆盖蒸菜、炖煮、快手菜、汤羹、主食中的多个类别。每道至少使用一种现有食材，可以补充1至3种常见食材。不要重复这些最近推荐过的菜名：${recent.join('、') || '无'}。避免全部都是炒菜或最基础的常见组合。\n适老要求：食材切小、肉类全熟、鱼类提醒去刺、少油少盐；不得声称治病，不替代医生建议。\n只返回JSON数组，不要Markdown和解释。每项必须包含：name字符串，time数字分钟，level字符串，method字符串，category只能是蒸菜/炖煮/快手菜/汤羹/主食之一，ingredients为不含用量的食材名数组，amounts为适合${servings}人的“食材名:用量”对象，steps为4至6条清晰完整步骤数组，tags为2个短标签数组，note为一条食品安全或适老提醒。变化编号：${Date.now() % 100000}。`;
+    async function requestAIRecommendations(needs, limit, servings) {
+      const code = familyCode.value.trim();
+      localStorage.setItem('warmKitchenFamilyCode', code);
+      let deviceId = localStorage.getItem('warmKitchenDeviceId');
+      if (!deviceId) {
+        deviceId = (globalThis.crypto && typeof globalThis.crypto.randomUUID === 'function')
+          ? globalThis.crypto.randomUUID()
+          : 'family-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
+        localStorage.setItem('warmKitchenDeviceId', deviceId);
+      }
+      const recentNames = JSON.parse(localStorage.getItem('warmKitchenRecentAI') || '[]').slice(0,16);
+      const response = await fetch('/api/recommend', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({accessCode:code, deviceId, ingredients:ingredients.slice(0,12), needs, servings, timeLimit:limit, recentNames})
+      });
+      let payload = {};
+      try { payload = await response.json(); } catch (_) {}
+      if (!response.ok) {
+        const error = new Error(payload.message || 'AI 服务暂时无法使用');
+        error.status = response.status;
+        throw error;
+      }
+      return payload;
     }
     function rememberAI(list) {
       const previous = JSON.parse(localStorage.getItem('warmKitchenRecentAI') || '[]');
@@ -726,27 +437,38 @@
     async function recommend() {
       if (input.value.trim()) addIngredients(input.value);
       if (!ingredients.length) { showToast('请先添加至少一种食材'); input.focus(); return; }
+      if (!familyCode.value.trim()) { showToast('请先输入家庭访问码'); familyCode.focus(); return; }
       const needs = selectedNeeds();
       const limit = document.getElementById('timeLimit').value;
       const servings = Number(document.getElementById('servings').value);
       const button = document.getElementById('recommendBtn');
       button.disabled = true; button.textContent = 'AI 正在搭配，请稍候…';
       try {
-        if (!window.puter || !puter.ai) throw new Error('AI 服务未加载');
-        const response = await puter.ai.chat(buildAIPrompt(needs, limit, servings), {model:'deepseek/deepseek-v4-flash'});
-        aiRecipes = parseAIRecipes(aiResponseText(response), needs, servings);
+        const response = await requestAIRecommendations(needs, limit, servings);
+        aiRecipes = parseAIRecipes(response, needs, servings);
         if (aiRecipes.length < 3) throw new Error('AI 菜谱数量不足');
         resultPool = diversify(aiRecipes);
         resultSource = 'AI';
+        resultLimits = response.limits || null;
         rememberAI(aiRecipes);
-        showToast('AI 已生成一组新菜谱');
+        showToast('家庭专属 AI 已生成一组新菜谱');
       } catch (error) {
         resultPool = localRecommendations(needs, limit);
         resultSource = 'local';
-        showToast('AI 暂时不可用，已使用本地菜谱推荐');
+        resultLimits = null;
+        if (error.status === 401) {
+          localStorage.removeItem('warmKitchenFamilyCode'); familyCode.value = ''; familyCode.focus();
+          showToast('家庭访问码不正确，已使用本地菜谱');
+        } else if (error.status === 429) {
+          showToast(error.message || '今日 AI 推荐次数已用完');
+        } else if (error.status === 503) {
+          showToast('家庭 AI 尚未完成云端设置，已使用本地菜谱');
+        } else {
+          showToast('AI 暂时不可用，已使用本地菜谱推荐');
+        }
         console.warn('AI recommendation fallback:', error);
       } finally {
-        button.disabled = false; button.textContent = '再换一组 DeepSeek 菜谱 →';
+        button.disabled = false; button.textContent = '再换一组菜品 →';
       }
       resultOffset = 0; setActiveCategory('全部');
       renderResults(needs);
@@ -768,7 +490,7 @@
       document.getElementById('resultCount').textContent = filtered.length + ' 道可选';
       document.getElementById('shuffleBtn').hidden = filtered.length <= pageSize;
       document.getElementById('resultSummary').innerHTML = resultSource === 'AI'
-        ? '✨ AI 根据“' + ingredients.slice(0,5).join('、') + (ingredients.length > 5 ? '等' : '') + '”刚刚生成；再次点击推荐会得到新组合。<span class="ai-source">由 Puter AI 提供，内容请结合实际调整</span>'
+        ? '✨ DeepSeek 根据“' + ingredients.slice(0,5).join('、') + (ingredients.length > 5 ? '等' : '') + '”刚刚生成；再次点击推荐会得到新组合。<span class="ai-source">家庭专属通道' + (resultLimits ? ' · 今日全家还可推荐约 ' + resultLimits.familyRemaining + ' 次' : '') + '</span>'
         : '已使用本地菜谱库为“' + ingredients.slice(0,5).join('、') + (ingredients.length > 5 ? '等' : '') + '”搭配（AI 暂时不可用）。';
       if (!currentResults.length) { grid.innerHTML = '<div class="empty"><div style="font-size:3rem">🍚</div><h3>这个分类暂时没有菜品</h3><p>可以选择“全部”，或再点击一次 AI 推荐生成新组合。</p></div>'; return; }
       grid.innerHTML = currentResults.map(recipe => {
@@ -845,6 +567,13 @@
     let largeFont = localStorage.getItem('warmKitchenLargeFont') === 'true';
     function applyFont() { document.documentElement.style.setProperty('--font-scale', largeFont ? '1.12' : '1'); document.getElementById('fontToggle').textContent = largeFont ? '标准字' : '大字版'; }
     document.getElementById('fontToggle').onclick = () => { largeFont = !largeFont; localStorage.setItem('warmKitchenLargeFont', largeFont); applyFont(); };
+    familyCode.value = localStorage.getItem('warmKitchenFamilyCode') || '';
+    if (familyCode.value) document.getElementById('familyCodeHint').textContent = '已记住，可直接推荐';
+    familyCode.addEventListener('change', () => {
+      const code = familyCode.value.trim();
+      if (code) { localStorage.setItem('warmKitchenFamilyCode', code); document.getElementById('familyCodeHint').textContent = '已保存在这台设备'; }
+      else { localStorage.removeItem('warmKitchenFamilyCode'); document.getElementById('familyCodeHint').textContent = '首次输入后会自动记住'; }
+    });
     applyFont(); renderChips();
   </script>
 </body>
